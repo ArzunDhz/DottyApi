@@ -3,20 +3,23 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace api.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class initghgdr : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "stocks",
+                name: "Stocks",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    Symbol = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Purchase = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     LastDiv = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -25,11 +28,11 @@ namespace api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_stocks", x => x.Id);
+                    table.PrimaryKey("PK_Stocks", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "comments",
+                name: "Comments",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -40,17 +43,26 @@ namespace api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_comments", x => x.Id);
+                    table.PrimaryKey("PK_Comments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_comments_stocks_StockId",
+                        name: "FK_Comments_Stocks_StockId",
                         column: x => x.StockId,
-                        principalTable: "stocks",
+                        principalTable: "Stocks",
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.InsertData(
+                table: "Stocks",
+                columns: new[] { "Id", "Industry", "LastDiv", "MarkCap", "Name", "Purchase", "Symbol" },
+                values: new object[,]
+                {
+                    { 1, "Technology", 2m, 200000000000L, "Apple Inc.", 150m, null },
+                    { 2, "Technology", 10m, 1500000000000L, "Alphabet Inc.", 2500m, null }
+                });
+
             migrationBuilder.CreateIndex(
-                name: "IX_comments_StockId",
-                table: "comments",
+                name: "IX_Comments_StockId",
+                table: "Comments",
                 column: "StockId");
         }
 
@@ -58,10 +70,10 @@ namespace api.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "comments");
+                name: "Comments");
 
             migrationBuilder.DropTable(
-                name: "stocks");
+                name: "Stocks");
         }
     }
 }

@@ -12,8 +12,8 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240310160112_initialbgv")]
-    partial class initialbgv
+    [Migration("20240311035155_initghgdr")]
+    partial class initghgdr
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -75,9 +75,32 @@ namespace api.Migrations
                     b.Property<decimal>("Purchase")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("Symbol")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Stocks");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Industry = "Technology",
+                            LastDiv = 2m,
+                            MarkCap = 200000000000L,
+                            Name = "Apple Inc.",
+                            Purchase = 150m
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Industry = "Technology",
+                            LastDiv = 10m,
+                            MarkCap = 1500000000000L,
+                            Name = "Alphabet Inc.",
+                            Purchase = 2500m
+                        });
                 });
 
             modelBuilder.Entity("api.Models.Comment", b =>
