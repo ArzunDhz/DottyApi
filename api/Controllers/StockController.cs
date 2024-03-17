@@ -1,9 +1,11 @@
 ﻿
 using api.Data;
 using api.Dtos.Stock;
+using api.Helpers;
 using api.Interfaces;
 using api.Mappers;
 using api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;  // Make sure to include this for Entity Framework Core
 
@@ -20,13 +22,11 @@ namespace api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [Authorize]
+        public async Task<IActionResult> GetAll([FromQuery] QueryObject query  )
         {
-
-            // Use async/await properly with ToListAsync()
-            var stocks = await _stockRepo.GetAllAsync();
-            var stockDtos = stocks.Select(s => s.ToStockDto());
-            return Ok(stockDtos);
+            var stocks = await _stockRepo.GetAllAsync(query);
+            return Ok(stocks);
         }
 
         [HttpGet("{id}")]

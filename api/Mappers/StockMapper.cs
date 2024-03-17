@@ -15,7 +15,8 @@ namespace api.Mappers
                 Purchase = stockModel.Purchase,
                 LastDiv = stockModel.LastDiv,
                 MarkCap = stockModel.MarkCap,
-                Name = stockModel.Name     
+                Name = stockModel.Name,
+                Comments = stockModel.Comments.Select( x => x.ToCommentDto()).ToList(),
             };
         }
 

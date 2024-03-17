@@ -1,5 +1,6 @@
 ﻿using api.Data;
 using api.Dtos.Stock;
+using api.Helpers;
 using api.Interfaces;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
@@ -15,15 +16,64 @@ namespace api.Repository
             _context = context;
         }
 
-        public async Task<List<Stock>> GetAllAsync()
+        public async Task<List<Stock>> GetAllAsync( QueryObject q)
         {
-            return await _context.Stocks.ToListAsync();
+            //marking that stock will be quarable
+            var stocks =  _context.Stocks.Include(c=>c.Comments).AsQueryable();
+
+
+            // for getting name
+            if(!string.IsNullOrWhiteSpace(q.Name))
+            {
+                stocks = stocks.Where(s => s.Name.Contains(q.Name));
+            }
+            //for getting symbol
+
+            if (!string.IsNullOrWhiteSpace(q.Symbol))
+            {
+                stocks = stocks.Where(s => s.Symbol.Contains(q.Symbol));
+            }
+
+            //for getting Industry
+
+            if (!string.IsNullOrWhiteSpace(q.Industry))
+            {
+                stocks = stocks.Where(s => s.Industry.Contains(q.Industry));
+            }
+
+            //formatting the order asc or decs of the SortBy type
+            if (!string.IsNullOrEmpty(q.SortBy))
+            {
+                if (q.SortBy.Equals("Symbol", StringComparison.OrdinalIgnoreCase))
+                {
+                 stocks = q.IsDescending ? stocks.OrderByDescending( s => s.Symbol) : stocks.OrderBy(s => s.Symbol) ;   
+                }
+
+                if (q.SortBy.Equals("Name", StringComparison.OrdinalIgnoreCase))
+                {
+                    stocks = q.IsDescending ? stocks.OrderByDescending(s => s.Name) : stocks.OrderBy(s => s.Name);
+                }
+
+                if (q.SortBy.Equals("Industry", StringComparison.OrdinalIgnoreCase))
+                {
+                    stocks = q.IsDescending ? stocks.OrderByDescending(s => s.Industry) : stocks.OrderBy(s => s.Industry);
+                }
+
+                if (q.SortBy.Equals("Purchase", StringComparison.OrdinalIgnoreCase))
+                {
+                    stocks = q.IsDescending ? stocks.OrderByDescending(s => s.Purchase) : stocks.OrderBy(s => s.Purchase);
+                }
+
+            }
+            // for pagination
+                var skipNumber = ( q.PageNumber -1)* q.PageSize;
+                return  await stocks.Skip(skipNumber).Take(q.PageSize).ToListAsync();
         }
 
 
         public  async Task<Stock?> GetDataByIdAsync(int id)
         {
-            var DataById = await _context.Stocks.FindAsync(id);
+            var DataById = await _context.Stocks.Include(c => c.Comments).FirstOrDefaultAsync(c => c.Id == id);
             return DataById;
         }
 
@@ -64,5 +114,12 @@ namespace api.Repository
             await _context.SaveChangesAsync() ;
             return isData;
         }
+
+        public async Task<bool> StockExists(int id)
+        {
+          return await _context.Stocks.AnyAsync(x => x.Id == id); 
+        }
+
+   
     }
 }

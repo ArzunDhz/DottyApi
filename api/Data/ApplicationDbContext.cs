@@ -1,9 +1,13 @@
-﻿using api.Models;
+﻿
+using api.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace api.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<AppUser>
     {
         internal readonly object Stock;
 
@@ -11,15 +15,25 @@ namespace api.Data
         {
         }
 
+
+        // seeding the data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Stock>().HasData
-                (
-                new Stock { Id = 1, Name = "Apple Inc.", Purchase = 150, LastDiv = 2, Industry = "Technology", MarkCap = 200000000000 },
-                new Stock { Id = 2, Name = "Alphabet Inc.", Purchase = 2500, LastDiv = 10, Industry = "Technology", MarkCap = 1500000000000 }
-                );
-
             base.OnModelCreating(modelBuilder);
+            List<IdentityRole> roles = new List<IdentityRole>
+            {
+                new IdentityRole
+                {
+                    Name ="Admin",
+                    NormalizedName = "ADMIN",
+                },
+                new IdentityRole
+                {
+                    Name ="User",
+                    NormalizedName = "USER",
+                },
+            };
+            modelBuilder.Entity<IdentityRole>().HasData(roles);
         }
         public DbSet<Stock> Stocks { get; set; }
         public DbSet<Comment> Comments { get; set; }
